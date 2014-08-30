@@ -386,7 +386,7 @@ void bumpHour(){                          // User pressed S2 in menu Case 1
  setDateTime();                          // set the new time in the clock board
  getDateAndTime();                       // get thetime from the board and reset system time  
 }
-
+ 
 void bumpMinute(){                       // User press S2 in the menu Case 2
 getDateAndTime();                       // get thetime from the board and reset system time
  if (reverSeMin == false)   myMinute++;   // Add 1 to minutes
