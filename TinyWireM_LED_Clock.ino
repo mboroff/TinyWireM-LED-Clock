@@ -91,7 +91,7 @@ void loop(){
       processMenu();
       }
   lastButtonPin1 = currentButtonPin1;
-  if (hour() == 0 && minute() == 0 && second() == 0) {
+  if (minute() == 0 && second() == 0) {      // update time on the hour
       getDateAndTime();                         // get the date
   }
   if (prevSecond != second()) {            // Next second ?
@@ -195,7 +195,7 @@ void getDateAndTime(){                                 // ------ Get the time an
   TinyWireM.beginTransmission(DS1307_ADDRESS);       // Reset the register pointer
   TinyWireM.write(zero);                             // Stop the Oscilllator
   TinyWireM.endTransmission();                       // Send endof transmission
-  TinyWireM.requestFrom(DS1307_ADDRESS, 7);          // Request to receive seven bytes from the clock
+  TinyWireM.requestFrom(DS1307_ADDRESS, 7);          // Request to receive 3 bytes from the clock
 
   mySecond = bcdToDec(TinyWireM.read());
   myMinute = bcdToDec(TinyWireM.read());
@@ -205,8 +205,8 @@ void getDateAndTime(){                                 // ------ Get the time an
   myMonth = bcdToDec(TinyWireM.read());
   myYear = bcdToDec(TinyWireM.read());
   dmyYear = myYear + 2000;                    // Add 2000 for year display - don't worry about next century
-setTime(myHour, myMinute, mySecond, myMonthDay, myMonth, myYear);
- Serial.print(myHour); Serial.print(":"); Serial.print(myMinute); Serial.print(":"); Serial.println(mySecond);
+  setTime(myHour, myMinute, mySecond, myMonthDay, myMonth, myYear);
+  Serial.print(hour()); Serial.print(":"); Serial.print(minute()); Serial.print(":"); Serial.println(second());
 }
 void setDateTime(){
   TinyWireM.beginTransmission(DS1307_ADDRESS);              // Address the clock board for receipt of writes
@@ -236,29 +236,29 @@ boolean debouncePin(boolean last, int buttonPin) {                    // Debounc
   return currentButtonPin;                           // Return the state of the pin
 }
 void printSegHour() {                // ----- Display the Hour on Seven Segment display ----
- boolean drawDots = false;
-  int wrkHr; 
-  wrkHr = myHour;  
-  if (myHour < 23 && myHour > 12){             // If hour is between 10 and 20 
-      wrkHr = (myHour - 12) ;     // subtract 12 hour and multiply the hour by 100 to print digits 2 - 4
+  boolean drawDots = false;
+  getDateAndTime();                   // read time from chip to my values and set time
+  int wrkHr;
+  wrkHr = myHour;
+  if (myHour < 23 && myHour > 12){ // If hour is between 10 and 20
+      wrkHr = (myHour - 12) ; // subtract 12 hour and multiply the hour by 100 to print digits 2 - 4
       }
-  if (myHour == 23 || myHour == 11){         // if hour is 11 or 23 display 11
+  if (myHour == 23 || myHour == 11){ // if hour is 11 or 23 display 11
       wrkHr = 11;
-     }
-  if (myHour == 22 || myHour == 10){        // if hour is 10 or 22 display 10
+      }
+  if (myHour == 22 || myHour == 10){ // if hour is 10 or 22 display 10
       wrkHr = 10;
-     }    
-  if (myHour == 0 || myHour == 12){        // if hour is 12 or midnight display 12
+      }
+  if (myHour == 0 || myHour == 12){ // if hour is 12 or midnight display 12
       wrkHr = 12;
-     }    
-
-  if (myHour > 9 && myHour < 12) {                 
-      matrix.writeDigitNum(0, 1 , false);           // print hour 1st digit
       }
-  if (myHour < 12) {  
-      matrix.writeDigitNum(1, wrkHr % 10, false);  // print hour 2nd digit
+  if (myHour > 9 && myHour < 12) {
+      matrix.writeDigitNum(0, 1 , false); // print hour 1st digit
       }
-  if (myHour == 0) {                          //  routine to print 1 and either 2, 1 or 0
+  if (myHour < 12) {
+      matrix.writeDigitNum(1, wrkHr % 10, false); // print hour 2nd digit
+      }
+  if (myHour == 0) { // routine to print 1 and either 2, 1 or 0
       matrix.writeDigitNum(0, 1, false);
       matrix.writeDigitNum(1, 2, false);
       }
@@ -274,108 +274,129 @@ void printSegHour() {                // ----- Display the Hour on Seven Segment 
       matrix.writeDigitNum(0, 1, false);
       matrix.writeDigitNum(1, 1, false);
       }
-   if (wrkHr < 10) {
-      matrix.displaybuffer[0] = B00000000;         // leading 0
+  if (wrkHr < 10) {
+      matrix.displaybuffer[0] = B00000000; // leading 0
       matrix.writeDigitNum(1, wrkHr % 10, false);
       }
-     
-  if (myMinute < 10 ||  myMinute > 59) matrix.writeDigitNum(3, 0, false); 
-  if (myMinute > 9 && myMinute < 20) matrix.writeDigitNum(3, 1, false);
-  if (myMinute > 19 && myMinute < 30) matrix.writeDigitNum(3, 2, false);
-  if (myMinute > 29 && myMinute < 40) matrix.writeDigitNum(3, 3, false);
-  if (myMinute > 39 && myMinute < 50) matrix.writeDigitNum(3, 4, false);
-  if (myMinute > 49 && myMinute < 60) matrix.writeDigitNum(3, 5, false);
+  if (myMinute < 10 || myMinute > 59) {
+      matrix.writeDigitNum(3, 0, false);
+      }
+  if (myMinute > 9 && myMinute < 20) {
+      matrix.writeDigitNum(3, 1, false);
+      }
+  if (myMinute > 19 && myMinute < 30) {
+      matrix.writeDigitNum(3, 2, false);
+      }
+  if (myMinute > 29 && myMinute < 40) {
+      matrix.writeDigitNum(3, 3, false);
+      }
+  if (myMinute > 39 && myMinute < 50) {
+      matrix.writeDigitNum(3, 4, false);
+      }
+  if (myMinute > 49 && myMinute < 60) {
+      matrix.writeDigitNum(3, 5, false);
+      }
   if (myHour > 11) {
       matrix.writeDigitNum(4, myMinute % 10, false);
       }
-      else {
-            matrix.writeDigitNum(4, myMinute % 10, true);
-            }  
-
-//           =================  If menu is active the following routines will replace the time display
-  if (menuCtr == 1){  
-      matrix.displaybuffer[0] = B01110110  ;   // Hr .. 
-      matrix.displaybuffer[1] = B01010000  ;
-     if (myHour > 9 && myHour < 12) {                 
-         matrix.writeDigitNum(3, 1 , false);           // print hour 1st digit
-         }
-     if (myHour < 12) {  
-           matrix.writeDigitNum(4, wrkHr % 10, false);  // print hour 2nd digit
-           }
-     if (myHour == 0) {                          //  routine to print 1 and either 2, 1 or 0
-         matrix.writeDigitNum(3, 1, false);
-         matrix.writeDigitNum(4, 2, false);
-         }
-     if (myHour == 12) {
-         matrix.writeDigitNum(3, 1, false);
-         matrix.writeDigitNum(4, 2, false);
-         }
-     if (myHour == 22) {
-         matrix.writeDigitNum(3, 1, false);
-         matrix.writeDigitNum(4, 0, false);
-         }
-     if (myHour == 23) {
-         matrix.writeDigitNum(3, 1, false);
-         matrix.writeDigitNum(4, 1, false);
-         }
-     
-     if (wrkHr < 10) {
-        matrix.displaybuffer[3] = B00000000;         // leading 0
-        matrix.writeDigitNum(4, wrkHr % 10, false);
+  else {
+        matrix.writeDigitNum(4, myMinute % 10, true);
         }
-     }
-   if (menuCtr == 2){
-       matrix.displaybuffer[0] = B00110011  ;
-       matrix.displaybuffer[1] = B00100111  ;
-       if (myMinute < 10 ||  myMinute > 59) matrix.writeDigitNum(3, 0, false); 
-       if (myMinute > 9 && myMinute < 20) matrix.writeDigitNum(3, 1, false);
-       if (myMinute > 19 && myMinute < 30) matrix.writeDigitNum(3, 2, false);
-       if (myMinute > 29 && myMinute < 40) matrix.writeDigitNum(3, 3, false);
-       if (myMinute > 39 && myMinute < 50) matrix.writeDigitNum(3, 4, false);
-       if (myMinute > 49 && myMinute < 60) matrix.writeDigitNum(3, 5, false);
+// ================= If menu is active the following routines will replace the time display
+  if (menuCtr == 1){
+      matrix.displaybuffer[0] = B01110110 ; // Hr ..
+      matrix.displaybuffer[1] = B01010000 ;
+      if (myHour > 9 && myHour < 12) {
+          matrix.writeDigitNum(3, 1 , false); // print hour 1st digit
+          }
+      if (myHour < 12) {
+          matrix.writeDigitNum(4, wrkHr % 10, false); // print hour 2nd digit
+          }
+      if (myHour == 0) { // routine to print 1 and either 2, 1 or 0
+          matrix.writeDigitNum(3, 1, false);
+          matrix.writeDigitNum(4, 2, false);
+          }
+      if (myHour == 12) {
+          matrix.writeDigitNum(3, 1, false);
+          matrix.writeDigitNum(4, 2, false);
+          }
+      if (myHour == 22) {
+          matrix.writeDigitNum(3, 1, false);
+          matrix.writeDigitNum(4, 0, false);
+          }
+      if (myHour == 23) {
+          matrix.writeDigitNum(3, 1, false);
+          matrix.writeDigitNum(4, 1, false);
+          }
+      if (wrkHr < 10) {
+          matrix.displaybuffer[3] = B00000000; // leading 0
+          matrix.writeDigitNum(4, wrkHr % 10, false);
+          }
+      }
+  if (menuCtr == 2){
+      matrix.displaybuffer[0] = B00110011 ;
+      matrix.displaybuffer[1] = B00100111 ;
+      if (myMinute < 10 || myMinute > 59) {
+          matrix.writeDigitNum(3, 0, false);
+          }
+      if (myMinute > 9 && myMinute < 20) {
+          matrix.writeDigitNum(3, 1, false);
+          }
+      if (myMinute > 19 && myMinute < 30) {
+          matrix.writeDigitNum(3, 2, false);
+          }
+      if (myMinute > 29 && myMinute < 40) {
+          matrix.writeDigitNum(3, 3, false);
+          }
+      if (myMinute > 39 && myMinute < 50) {
+          matrix.writeDigitNum(3, 4, false);
+          }
+      if (myMinute > 49 && myMinute < 60){
+          matrix.writeDigitNum(3, 5, false);
+          }
       if (myHour > 12) {
           matrix.writeDigitNum(4, myMinute % 10, false);
           }
-        else {
-              matrix.writeDigitNum(4, myMinute % 10, true);
-             }  
-     }
-    flashColon();                                   // flash is only when menu is not being processed
-    matrix.writeDisplay(); 
-}       
-
-void flashColon(){                           //---------- colon print routine for LED -----
-  if (menuCtr == 0) {  
+      else {
+            matrix.writeDigitNum(4, myMinute % 10, true);
+            }
+  }
+  flashColon(); // flash is only when menu is not being processed
+  matrix.writeDisplay();
+}
+void flashColon(){ //---------- colon print routine for LED -----
+  if (menuCtr == 0) {
       if (lastFlash == true) {
           lastFlash = false;
-          matrix.drawColon(true) ;   
+          matrix.drawColon(true) ;
           }
-     else  {
+      else {
             lastFlash = true;
-            matrix.drawColon(false);            
-           }
-    }   
-
+            matrix.drawColon(false);
+            }
+      }
 }
 
 void bumpHour(){                          // User pressed S2 in menu Case 1
+ getDateAndTime();                       // get thetime from the board and reset system time
  if (reverSe == false) myHour++;        // Add 1 to hour
  if (reverSe == true) myHour--;
  if (myHour < 0 || myHour > 254) myHour = 23;  
  if (myHour > 23) myHour = 0;            // If it is midnight rest to zero
  setDateTime();                          // set the new time in the clock board
- getDateAndTime();  
+ getDateAndTime();                       // get thetime from the board and reset system time  
 }
 
 void bumpMinute(){                       // User press S2 in the menu Case 2
+getDateAndTime();                       // get thetime from the board and reset system time
  if (reverSeMin == false)   myMinute++;   // Add 1 to minutes
  if (reverSeMin == true)   myMinute--;     // Add 1 to minutes
- if (myMinute <= 0 || myMinute == 255) {
+ if (myMinute <= 0 || myMinute == 255) {   // adjust for negative value
      myMinute = 59;  
      }
   if (myMinute > 59) myMinute = 00;      // If greater than 59 minutes reset to zero
     mySecond = 0;                        // rest the seconds to zero
     setDateTime();                       // set the new time in the clock board        
-    getDateAndTime();  
+    getDateAndTime();                    // get thetime from the board and reset system time  
 }
 
