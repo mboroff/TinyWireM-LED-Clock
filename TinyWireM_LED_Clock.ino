@@ -379,24 +379,38 @@ void flashColon(){ //---------- colon print routine for LED -----
 
 void bumpHour(){                          // User pressed S2 in menu Case 1
  getDateAndTime();                       // get thetime from the board and reset system time
- if (reverSe == false) myHour++;        // Add 1 to hour
- if (reverSe == true) myHour--;
- if (myHour < 0 || myHour > 254) myHour = 23;  
- if (myHour > 23) myHour = 0;            // If it is midnight rest to zero
+ if (reverSe == false) {
+     myHour++;        // Add 1 to hour
+     }
+ if (reverSe == true) {
+     myHour--;
+     }
+ if (myHour < 0 || myHour > 254) {
+     myHour = 23;  
+     }
+ if (myHour > 23) {
+     myHour = 0;            // If it is midnight rest to zero
+     }
  setDateTime();                          // set the new time in the clock board
  getDateAndTime();                       // get thetime from the board and reset system time  
 }
  
 void bumpMinute(){                       // User press S2 in the menu Case 2
 getDateAndTime();                       // get thetime from the board and reset system time
- if (reverSeMin == false)   myMinute++;   // Add 1 to minutes
- if (reverSeMin == true)   myMinute--;     // Add 1 to minutes
+ if (reverSeMin == false)  {
+     myMinute++;   // Add 1 to minutes
+     }
+ if (reverSeMin == true)  {
+     myMinute--;     // Add 1 to minutes
+     }
  if (myMinute <= 0 || myMinute == 255) {   // adjust for negative value
      myMinute = 59;  
      }
-  if (myMinute > 59) myMinute = 00;      // If greater than 59 minutes reset to zero
-    mySecond = 0;                        // rest the seconds to zero
-    setDateTime();                       // set the new time in the clock board        
-    getDateAndTime();                    // get thetime from the board and reset system time  
+  if (myMinute > 59) {
+      myMinute = 00;      // If greater than 59 minutes reset to zero
+      }
+  mySecond = 0;                        // rest the seconds to zero
+  setDateTime();                       // set the new time in the clock board        
+  getDateAndTime();                    // get thetime from the board and reset system time  
 }
 
