@@ -24,7 +24,7 @@
 Adafruit_7segment matrix = Adafruit_7segment();
 
 
-#define DS1307_ADDRESS 0x68
+#define DS1307_ADDRESS 0x68 // Same address if you use DS3232
 byte zero = 0x00; //workaround for issue #527
 
 //------------Button Variables -------------------
