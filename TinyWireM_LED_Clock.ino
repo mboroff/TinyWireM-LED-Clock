@@ -24,7 +24,7 @@
 Adafruit_7segment matrix = Adafruit_7segment();
 
 
-#define DS1307_ADDRESS 0x68 // Same address if you use DS3232
+#define CLOCK_ADDRESS 0x68 // Same address if you use DS3232
 byte zero = 0x00; //workaround for issue #527
 
 //------------Button Variables -------------------
@@ -69,7 +69,6 @@ int nDevices;
 static int ledBrightness = 5;        // set the brightness of the LED
  
 void setup()  {
-  Serial.begin(115200);  // Set serial monitor speed
   pinMode(buttonPin1, INPUT);   //Set switch modes
   pinMode(buttonPin2, INPUT);
   pinMode(buttonPin3, INPUT);
@@ -91,14 +90,9 @@ void loop(){
       processMenu();
       }
   lastButtonPin1 = currentButtonPin1;
-  if (minute() == 0 && second() == 0) {      // update time on the hour
-      getDateAndTime();                         // get the date
-  }
-  if (prevSecond != second()) {            // Next second ?
-      prevSecond =  second();
-       mySecond = second();
-       myMinute = minute();
-       myHour = hour();
+  getDateAndTime();
+  if (prevSecond != mySecond) {            // Next second ?
+      prevSecond =  mySecond;
        printSegHour();          //do seven segment time display
   }
 
@@ -192,10 +186,10 @@ byte bcdToDec(byte val)  {                               // conversion routine b
 
 void getDateAndTime(){                                 // ------ Get the time and date from clock board
 
-  TinyWireM.beginTransmission(DS1307_ADDRESS);       // Reset the register pointer
+  TinyWireM.beginTransmission(CLOCK_ADDRESS);       // Reset the register pointer
   TinyWireM.write(zero);                             // Stop the Oscilllator
   TinyWireM.endTransmission();                       // Send endof transmission
-  TinyWireM.requestFrom(DS1307_ADDRESS, 7);          // Request to receive 3 bytes from the clock
+  TinyWireM.requestFrom(CLOCK_ADDRESS, 7);          // Request to receive 3 bytes from the clock
 
   mySecond = bcdToDec(TinyWireM.read());
   myMinute = bcdToDec(TinyWireM.read());
@@ -205,11 +199,11 @@ void getDateAndTime(){                                 // ------ Get the time an
   myMonth = bcdToDec(TinyWireM.read());
   myYear = bcdToDec(TinyWireM.read());
   dmyYear = myYear + 2000;                    // Add 2000 for year display - don't worry about next century
-  setTime(myHour, myMinute, mySecond, myMonthDay, myMonth, myYear);
-  Serial.print(hour()); Serial.print(":"); Serial.print(minute()); Serial.print(":"); Serial.println(second());
+
+
 }
 void setDateTime(){
-  TinyWireM.beginTransmission(DS1307_ADDRESS);              // Address the clock board for receipt of writes
+  TinyWireM.beginTransmission(CLOCK_ADDRESS);              // Address the clock board for receipt of writes
   TinyWireM.write(zero);                                    //stop Oscillator
 
   TinyWireM.write(decToBcd(mySecond));                      // Write the time to buffer
