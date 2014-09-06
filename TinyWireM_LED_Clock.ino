@@ -17,7 +17,6 @@
 /*-----( Import needed libraries )-----*/
 //#include <Wire.h>  // Comes with Arduino IDE
 #include <TinyWireM.h>
-#include <Time.h>  
 #include "Adafruit_LEDBackpack.h"
 #include "Adafruit_GFX.h"
 
